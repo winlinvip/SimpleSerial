@@ -24,14 +24,160 @@ SOFTWARE.
 
 #include "SimpleSerial.h"
 
+// debug macro.
+#if 0
+#define SscLog(msg) Serial.println(msg)
+#define SscLogf(msg) Serial.print(msg)
+#else
+#define SscLog(msg) (void)0
+#define SscLogf(msg) (void)0
+#endif
+
 void SimpleSerial::begin(long baudrate) {
+    pos = 0;
+    memset(buf, 0, 16);
+    
     Serial.begin(baudrate);
 }
 
-int SimpleSerial::read() {
+bool SimpleSerial::available() {
+    if (pos >= 16) {
+        return true;
+    }
+    
+    // try to read all data.
+    while (pos < 16 && Serial.available()) {
+        byte v = Serial.read();
+    
+        // wait for sync word 0x47.
+        if (pos == 0 && v != 0x47) {
+            SscLog("Drop for invalid sync word.");
+            continue;
+        }
+    
+        buf[pos++] = v;
+        
+        // wait for data to incomming.
+        if (Serial.available() <= 0) {
+            delay(10);
+        }
+    }
+    
+    // data not fullfill the buffer, please retry.
+    if (pos < 16) {
+        return false;
+    }
+    
+    return true;
+}
+
+int SimpleSerial::read0(byte* command) {
+    if (!available()) {
+        return -1;
+    }
+    pos = 0;
+    
+    if (command) {
+        *command = buf[1];
+    }
     return 0;
 }
 
-int SimpleSerial::write() {
+int SimpleSerial::read1(byte* command, byte* arg0) {
+    int ret = 0;
+    
+    if ((ret = read0(command)) != 0) {
+        return ret;
+    }
+    if (arg0) {
+        *arg0 = buf[1];
+    }
+    
+    return ret;
+}
+
+int SimpleSerial::read2(byte* command, byte* arg0, byte* arg1) {
+    int ret = 0;
+    
+    if ((ret = read1(command, arg0)) != 0) {
+        return ret;
+    }
+    if (arg1) {
+        *arg1 = buf[2];
+    }
+    
+    return ret;
+}
+
+int SimpleSerial::read3(byte* command, byte* arg0, byte* arg1, byte* arg2) {
+    int ret = 0;
+    
+    if ((ret = read2(command, arg0, arg1)) != 0) {
+        return ret;
+    }
+    if (arg2) {
+        *arg2 = buf[2];
+    }
+    
+    return ret;
+}
+
+int SimpleSerial::write0(byte command) {
+    return write(command, NULL);
+}
+
+int SimpleSerial::write1(byte command, byte arg0) {
+    byte b[12] = {0};
+    b[0] = arg0;
+    return write(command, b);
+}
+
+int SimpleSerial::write2(byte command, byte arg0, byte arg1) {
+    byte b[12] = {0};
+    b[0] = arg0;
+    b[1] = arg1;
+    return write(command, b);
+}
+
+int SimpleSerial::write3(byte command, byte arg0, byte arg1, byte arg2) {
+    byte b[12] = {0};
+    b[0] = arg0;
+    b[1] = arg1;
+    b[2] = arg2;
+    return write(command, b);
+}
+
+int SimpleSerial::read(byte* command, byte data[12]) {
+    if (!available()) {
+        return -1;
+    }
+    pos = 0;
+    
+    if (command) {
+        *command = buf[1];
+    }
+    if (data) {
+        memcpy(data, buf + 2, 12);
+    }
+    return 0;
+}
+
+int SimpleSerial::write(byte command, byte data[12]) {
+    byte b[16] = {0};
+    
+    b[0] = 0x47;
+    b[1] = command;
+    if (data) {
+        memcpy(b+2, data, 12);
+    }
+    b[14] = '\n';
+    b[15] = '\n';
+    
+    for (int i = 0; i < 16; i++) {
+        if (Serial.write(b[i]) != 1) {
+            return -1;
+        }
+    }
+    
     return 0;
 }

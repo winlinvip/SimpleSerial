@@ -12,7 +12,16 @@ SimpleSerial KEYWORD1
 ###########################################
 begin KEYWORD2
 read KEYWORD2
+read0 KEYWORD2
+read1 KEYWORD2
+read2 KEYWORD2
+read3 KEYWORD2
 write KEYWORD2
+write0 KEYWORD2
+write1 KEYWORD2
+write2 KEYWORD2
+write3 KEYWORD2
+available KEYWORD2
 
 ###########################################
 # Constants (LITERAL1)

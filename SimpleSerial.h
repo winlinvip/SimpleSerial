@@ -44,10 +44,46 @@
 
 */
 class SimpleSerial {
+private:
+    // each command is 35bytes.
+    //      1byte sync word, 0x47 'G'.
+    //      1byte command, for example, SSC_PING 'P'.
+    //      12byte data bytes.
+    //      1byte Reserved '\n'.
+    //      1byte EOF '\n'.
+    byte buf[16];
+    // current received position.
+    byte pos;
 public:
     void begin(long baudrate);
-    int read();
-    int write();
+    bool available();
+public:
+    int read0(byte* command);
+    int read1(byte* command, byte* arg0);
+    int read2(byte* command, byte* arg0, byte* arg1);
+    int read3(byte* command, byte* arg0, byte* arg1, byte* arg2);
+public:
+    int write0(byte command);
+    int write1(byte command, byte arg0);
+    int write2(byte command, byte arg0, byte arg1);
+    int write3(byte command, byte arg0, byte arg1, byte arg2);
+public:
+    int read(byte* command, byte data[12]);
+    int write(byte command, byte data[12]);
+};
+
+// Simple Serial Commands.
+enum SimpleSerialCommands {
+    // ping peer.
+    // GP01234567890123
+    SSC_PING = 'P',
+    // query the temperature and humidity.
+    // GQ01234567890123
+    SSC_QUERY_TH = 'Q',
+    SSC_RESP_TH = 'R',
+    // not support command, arg0 is the command.
+    // GNA0123456789012
+    SSC_NOT_SUPPORT = 'N',
 };
 
 #endif
