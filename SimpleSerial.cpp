@@ -128,12 +128,16 @@ int SimpleSerial::write0(byte command) {
 
 int SimpleSerial::write1(byte command, byte arg0) {
     byte b[12] = {0};
+    memcpy(b, 0, 12);
+    
     b[0] = arg0;
     return write(command, b);
 }
 
 int SimpleSerial::write2(byte command, byte arg0, byte arg1) {
     byte b[12] = {0};
+    memcpy(b, 0, 12);
+    
     b[0] = arg0;
     b[1] = arg1;
     return write(command, b);
@@ -141,6 +145,8 @@ int SimpleSerial::write2(byte command, byte arg0, byte arg1) {
 
 int SimpleSerial::write3(byte command, byte arg0, byte arg1, byte arg2) {
     byte b[12] = {0};
+    memcpy(b, 0, 12);
+    
     b[0] = arg0;
     b[1] = arg1;
     b[2] = arg2;
@@ -164,6 +170,7 @@ int SimpleSerial::read(byte* command, byte data[12]) {
 
 int SimpleSerial::write(byte command, byte data[12]) {
     byte b[16] = {0};
+    memcpy(b, 0, 16);
     
     b[0] = 0x47;
     b[1] = command;

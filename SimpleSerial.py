@@ -14,6 +14,8 @@ SSC_PING = 'P'
 SSC_QUERY_TH = 'Q'
 SSC_RESP_TH = 'R'
 SSC_NOT_SUPPORT = 'N'
+SSC_OPEN_HEATER = 'H'
+SSC_HEATER_OPENED = 'I'
 def str(command):
     if command == SSC_PING:
         return "Ping"
@@ -21,6 +23,10 @@ def str(command):
         return "QueryTH"
     elif command == SSC_RESP_TH:
         return "ResponseTH"
+    elif command == SSC_OPEN_HEATER:
+        return "OpenHeater"
+    elif command == SSC_HEATER_OPENED:
+        return "HeaterOpened"
     elif command == SSC_NOT_SUPPORT:
         return "NotSupported"
     else:
@@ -86,18 +92,19 @@ class SimpleSerial:
         return (self.read0(), ord(self.buf[2]), ord(self.buf[3]), ord(self.buf[4]))
     # @return tuple(command, data[12])
     def read(self):
+        command = self.read0()
         v = []
-        for i in range(self.buf[2:14]):
+        for i in self.buf[2:14]:
             v.append(ord(i))
-        return (self.read0(), v)
+        return (command, v)
     def write0(self, command):
-        self.write(command, None)
+        self.write(command, [])
     def write1(self, command, arg0):
-        self.write(command, [arg0])
+        self.write(command, [chr(arg0)])
     def write2(self, command, arg0, arg1):
-        self.write(comand, arg0, arg1)
+        self.write(command, [chr(arg0), chr(arg1)])
     def write3(self, command, arg0, arg1, arg2):
-        self.write(comand, arg0, arg1, arg2)
+        self.write(command, [chr(arg0), chr(arg1), chr(arg2)])
     # @param data is byte[12]
     def write(self, command, data):
         b = []
@@ -105,10 +112,9 @@ class SimpleSerial:
         b.append(chr(0x47))
         b.append(command)
         
-        if data is not None:
-            for i in range(len(data)):
-                b.append(data[i])
-        for i in range(len(b), 14, 1):
+        for i in data:
+            b.append(i)
+        while len(b) < 14:
             b.append(chr(0))
             
         b.append('\n')

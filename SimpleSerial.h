@@ -84,6 +84,13 @@ enum SimpleSerialCommands {
     // not support command, arg0 is the command.
     // GNA0123456789012
     SSC_NOT_SUPPORT = 'N',
+    // open the heater, arg0 is the target temperature, arg1 is the timeout in seconds.
+    // GH0Z012345678901
+    // where the 0 is 48*C, Z is 90 seconds.
+    SSC_OPEN_HEATER = 'H',
+    // the heater is opened.
+    // GI01234567890123
+    SSC_HEATER_OPENED = 'I',
 };
 
 #endif
