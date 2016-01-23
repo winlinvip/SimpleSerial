@@ -86,7 +86,10 @@ class SimpleSerial:
         return (self.read0(), ord(self.buf[2]), ord(self.buf[3]), ord(self.buf[4]))
     # @return tuple(command, data[12])
     def read(self):
-        return (self.read0(), self.buf[2:14])
+        v = []
+        for i in range(self.buf[2:14]):
+            v.append(ord(i))
+        return (self.read0(), v)
     def write0(self, command):
         self.write(command, None)
     def write1(self, command, arg0):
