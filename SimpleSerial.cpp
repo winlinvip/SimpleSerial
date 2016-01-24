@@ -153,6 +153,17 @@ int SimpleSerial::write3(byte command, byte arg0, byte arg1, byte arg2) {
     return write(command, b);
 }
 
+int SimpleSerial::write4(byte command, byte arg0, byte arg1, byte arg2, byte arg3) {
+    byte b[12] = {0};
+    memcpy(b, 0, 12);
+    
+    b[0] = arg0;
+    b[1] = arg1;
+    b[2] = arg2;
+    b[3] = arg3;
+    return write(command, b);
+}
+
 int SimpleSerial::read(byte* command, byte data[12]) {
     if (!available()) {
         return -1;

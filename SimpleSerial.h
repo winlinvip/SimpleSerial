@@ -67,6 +67,7 @@ public:
     int write1(byte command, byte arg0);
     int write2(byte command, byte arg0, byte arg1);
     int write3(byte command, byte arg0, byte arg1, byte arg2);
+    int write4(byte command, byte arg0, byte arg1, byte arg2, byte arg3);
 public:
     int read(byte* command, byte data[12]);
     int write(byte command, byte data[12]);
@@ -91,6 +92,10 @@ enum SimpleSerialCommands {
     // the heater is opened.
     // GI01234567890123
     SSC_HEATER_OPENED = 'I',
+    // the heater is closed, arg0 is target temperature, arg1 is the timeout in seconds, 
+    // arg2 is current temperature, arg3 is whether timeout.
+    // GCTTTT0123456789
+    SSC_HEATER_CLOSED = 'C',
 };
 
 #endif

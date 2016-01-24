@@ -16,6 +16,7 @@ SSC_RESP_TH = 'R'
 SSC_NOT_SUPPORT = 'N'
 SSC_OPEN_HEATER = 'H'
 SSC_HEATER_OPENED = 'I'
+SSC_HEATER_CLOSED = 'C'
 def str(command):
     if command == SSC_PING:
         return "Ping"
@@ -27,6 +28,8 @@ def str(command):
         return "OpenHeater"
     elif command == SSC_HEATER_OPENED:
         return "HeaterOpened"
+    elif command == SSC_HEATER_CLOSED:
+        return "HeaterClosed"
     elif command == SSC_NOT_SUPPORT:
         return "NotSupported"
     else:
