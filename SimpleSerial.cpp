@@ -71,55 +71,38 @@ bool SimpleSerial::available() {
     return true;
 }
 
-int SimpleSerial::read0(byte* command) {
+int SimpleSerial::read() {
     if (!available()) {
         return -1;
     }
-    pos = 0;
     
-    if (command) {
-        *command = buf[1];
-    }
+    pos = 0;
     return 0;
 }
 
-int SimpleSerial::read1(byte* command, byte* arg0) {
-    int ret = 0;
-    
-    if ((ret = read0(command)) != 0) {
-        return ret;
-    }
-    if (arg0) {
-        *arg0 = buf[1];
-    }
-    
-    return ret;
+byte SimpleSerial::command()
+{
+    return buf[1];
 }
 
-int SimpleSerial::read2(byte* command, byte* arg0, byte* arg1) {
-    int ret = 0;
-    
-    if ((ret = read1(command, arg0)) != 0) {
-        return ret;
-    }
-    if (arg1) {
-        *arg1 = buf[2];
-    }
-    
-    return ret;
+byte SimpleSerial::arg0()
+{
+    return buf[2];
 }
 
-int SimpleSerial::read3(byte* command, byte* arg0, byte* arg1, byte* arg2) {
-    int ret = 0;
-    
-    if ((ret = read2(command, arg0, arg1)) != 0) {
-        return ret;
-    }
-    if (arg2) {
-        *arg2 = buf[2];
-    }
-    
-    return ret;
+byte SimpleSerial::arg1()
+{
+    return buf[3];
+}
+
+byte SimpleSerial::arg2()
+{
+    return buf[4];
+}
+
+byte SimpleSerial::arg3()
+{
+    return buf[5];
 }
 
 int SimpleSerial::write0(byte command) {
@@ -162,21 +145,6 @@ int SimpleSerial::write4(byte command, byte arg0, byte arg1, byte arg2, byte arg
     b[2] = arg2;
     b[3] = arg3;
     return write(command, b);
-}
-
-int SimpleSerial::read(byte* command, byte data[12]) {
-    if (!available()) {
-        return -1;
-    }
-    pos = 0;
-    
-    if (command) {
-        *command = buf[1];
-    }
-    if (data) {
-        memcpy(data, buf + 2, 12);
-    }
-    return 0;
 }
 
 int SimpleSerial::write(byte command, byte data[12]) {

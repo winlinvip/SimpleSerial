@@ -100,21 +100,19 @@ void loop() {
   execute_heater();
   
   // got new command.
-  byte command;
-  byte param[12];
-  if (ss.read(&command, param)) {
+  if (ss.read()) {
     delay(300);
     return;
   }
 
   // response the ping message.
-  if (command == SSC_PING) {
+  if (ss.command() == SSC_PING) {
     ss.write0(SSC_PING);
     return;
   }
 
   // response the DHT11 temperature and humidity.
-  if (command == SSC_QUERY_TH) {
+  if (ss.command() == SSC_QUERY_TH) {
     byte temperature = 0, humidity = 0;
     if (dht11.read(pinDHT11, &temperature, &humidity, NULL)) {
       return;
@@ -126,14 +124,14 @@ void loop() {
   }
 
   // open the heater, set the target and expire.
-  if (command == SSC_OPEN_HEATER) {
-    reqTargetTemperature = param[0];
-    reqHeaterCommandExpire = param[1];
+  if (ss.command() == SSC_OPEN_HEATER) {
+    reqTargetTemperature = ss.arg0();
+    reqHeaterCommandExpire = ss.arg1();
     heaterExpire = millis() + (unsigned long)reqHeaterCommandExpire * 1000;
     start_heater();
     return;
   }
 
   // unknown command, mirror the command.
-  ss.write1(SSC_NOT_SUPPORT, command);
+  ss.write1(SSC_NOT_SUPPORT, ss.command());
 }

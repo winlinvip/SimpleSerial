@@ -58,10 +58,12 @@ public:
     void begin(long baudrate);
     bool available();
 public:
-    int read0(byte* command);
-    int read1(byte* command, byte* arg0);
-    int read2(byte* command, byte* arg0, byte* arg1);
-    int read3(byte* command, byte* arg0, byte* arg1, byte* arg2);
+    int read();
+    byte command();
+    byte arg0();
+    byte arg1();
+    byte arg2();
+    byte arg3();
 public:
     int write0(byte command);
     int write1(byte command, byte arg0);
@@ -69,7 +71,6 @@ public:
     int write3(byte command, byte arg0, byte arg1, byte arg2);
     int write4(byte command, byte arg0, byte arg1, byte arg2, byte arg3);
 public:
-    int read(byte* command, byte data[12]);
     int write(byte command, byte data[12]);
 };
 
