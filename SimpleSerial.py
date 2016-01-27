@@ -11,41 +11,82 @@ def open(device="/dev/ttyUSB0", baudrate=115200):
     return f
     
 def ping():
-    return PingCommand()
+    return Command('P')
 def queryTH():
-    return QueryTHCommand()
+    return Command('Q')
 def respTH(t, h):
-    return RespTHCommand().set_arg1(t, h)
+    return Command('R').set_arg1(t, h)
 def openHeater(t, e):
-    return OpenHeaterCommand().set_arg1(t, e)
+    return Command('H').set_arg1(t, e)
+def heaterOpened():
+    return Command('I')
 def heaterClosed(tt, te, t, e):
-    return HeaterClosedCommand().set_arg3(tt, te, t, e)
+    return Command('C').set_arg3(tt, te, t, e)
+def openFan(h, e):
+    return Command('F').set_arg1(h, e)
+def fanOpened():
+    return Command('O')
+def fanClosed(ht, he, h, e):
+    return Command('S').set_arg3(ht, he, h, e)
 def notSupported(c):
-    return NotSupportedCommand().set_arg0(c)
+    return Command('N').set_arg0(c)
+            
+def is_ping(cmd):
+    return cmd.command == 'P'
+def is_query_th(cmd):
+    return cmd.command == 'Q'
+def is_resp_th(cmd):
+    return cmd.command == 'R'
+def is_open_heater(cmd):
+    return cmd.command == 'H'
+def is_heater_opened(cmd):
+    return cmd.command == 'I'
+def is_heater_closed(cmd):
+    return cmd.command == 'C'
+def is_open_fan(cmd):
+    return cmd.command == 'F'
+def is_fan_opened(cmd):
+    return cmd.command == 'O'
+def is_fan_closed(cmd):
+    return cmd.command == 'S'
+def is_not_supported(cmd):
+    return cmd.command == 'N'
+def is_unknown(cmd):
+    return cmd.command not in ['P', 'Q', 'R', 'H', 'I', 'C', 'F', 'O', 'S', 'N']
         
 def parse(command, args):
+    return Command(command, args)
+        
+def str(cmd):
+    command = cmd.command
     if command == 'P':
-        return PingCommand(args)
+        return 'Ping'
     elif command == 'Q':
-        return QueryTHCommand(args)
+        return 'QueryTH'
     elif command == 'R':
-        return RespTHCommand(args)
+        return "ResponseTH"
     elif command == 'H':
-        return OpenHeaterCommand(args)
+        return "OpenHeater"
     elif command == 'I':
-        return HeaterOpenedCommand(args)
+        return "HeaterOpened"
     elif command == 'C':
-        return HeaterClosedCommand(args)
+        return "HeaterClosed"
+    elif command == 'F':
+        return "FanOpened"
+    elif command == 'O':
+        return "OpenFan"
+    elif command == 'S':
+        return "FanClosed"
     elif command == 'N':
-        return NotSupportedCommand(args)
+        return "NotSupported(%s)"%(cmd.args[0])
     else:
-        return UnknownCommand(command, args)
+        return "Unknown(%s)(%s)"%(cmd.command, cmd.args)
 
 class Command:
     # the buf[1] of buf[16], the command byte.
     # the buf[2:14] of buf[16], the args.
     # command in str, args in int.
-    def __init__(self, command, args):
+    def __init__(self, command, args=None):
         self.command = command
         self.args = args
         
@@ -55,25 +96,8 @@ class Command:
         for i in range(12):
             self.args.append(chr(0))
             
-    def is_ping(self):
-        return False
-    def is_query_th(self):
-        return False
-    def is_resp_th(self):
-        return False
-    def is_open_heater(self):
-        return False
-    def is_heater_opened(self):
-        return False
-    def is_heater_closed(self):
-        return False
-    def is_not_supported(self):
-        return False
-    def is_unknown(self):
-        return False
-            
     def str(self):
-        return "Unknown(%s)(%s)"%(self.command, self.args)
+        return str(self)
             
     # @return command
     def arg0(self):
@@ -108,70 +132,6 @@ class Command:
         self.args[2] = chr(arg2)
         self.args[3] = chr(arg3)
         return self
-
-class PingCommand(Command):
-    def __init__(self, args=None):
-        Command.__init__(self, 'P', args)
-    def is_ping(self):
-        return True
-    def str(self):
-        return "Ping"
-        
-class QueryTHCommand(Command):
-    def __init__(self, args=None):
-        Command.__init__(self, 'Q', args)
-    def is_query_th(self):
-        return True
-    def str(self):
-        return "QueryTH"
-        
-class RespTHCommand(Command):
-    def __init__(self, args=None):
-        Command.__init__(self, 'R', args)
-    def is_resp_th(self):
-        return True
-    def str(self):
-        return "ResponseTH"
-        
-class OpenHeaterCommand(Command):
-    def __init__(self, args=None):
-        Command.__init__(self, 'H', args)
-    def is_open_heater(self):
-        return True
-    def str(self):
-        return "OpenHeater"
-        
-class HeaterOpenedCommand(Command):
-    def __init__(self, args=None):
-        Command.__init__(self, 'I', args)
-    def is_heater_opened(self):
-        return True
-    def str(self):
-        return "HeaterOpened"
-        
-class HeaterClosedCommand(Command):
-    def __init__(self, args=None):
-        Command.__init__(self, 'C', args)
-    def is_heater_closed(self):
-        return True
-    def str(self):
-        return "HeaterClosed"
-        
-class NotSupportedCommand(Command):
-    def __init__(self, args=None):
-        Command.__init__(self, 'N', args)
-    def is_not_supported(self):
-        return True
-    def str(self):
-        return "NotSupported(%s)"%(self.args[0])
-
-class UnknownCommand(Command):
-    def __init__(self, command, args=None):
-        Command.__init__(self, command, args)
-    def is_unknown(self):
-        return True
-    def str(self):
-        return "Unknown(%s, %s)"%(self.command, self.args)
 
 class SimpleSerial:
     def __init__(self):
@@ -250,9 +210,9 @@ class SimpleSerial:
         command = self.buf[1]
         v = []
         for i in self.buf[2:14]:
-            v.append(ord(i))
+            v.append(i)
         
-        self.lrecv = Command.parse(command, v)
+        self.lrecv = parse(command, v)
         return self.lrecv
         
     # @param command object with data is byte[12]

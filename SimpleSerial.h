@@ -97,6 +97,16 @@ enum SimpleSerialCommands {
     // arg2 is current temperature, arg3 is whether timeout.
     // GCTTTT0123456789
     SSC_HEATER_CLOSED = 'C',
+    // open the fan, arg0 is target humidity, arg1 is the timeout in seconds.
+    // GO0Z012345678901
+    SSC_OPEN_FAN = 'O',
+    // the fan is opened. 
+    // GF01234567890123
+    SSC_FAN_OPENED = 'F',
+    // the fan is stopped, arg0 is target humidity, arg1 is the timeout in seconds, 
+    // arg2 is current humidity, arg3 is whether timeout.
+    // GSTTTT0123456789
+    SSC_FAN_CLOSED = 'S',
 };
 
 #endif
