@@ -23,9 +23,9 @@ def heaterOpened():
 def heaterClosed(tt, te, t, e):
     return Command('C').set_arg3(tt, te, t, e)
 def openFan(h, e):
-    return Command('F').set_arg1(h, e)
+    return Command('O').set_arg1(h, e)
 def fanOpened():
-    return Command('O')
+    return Command('F')
 def fanClosed(ht, he, h, e):
     return Command('S').set_arg3(ht, he, h, e)
 def notSupported(c):
@@ -44,15 +44,15 @@ def is_heater_opened(cmd):
 def is_heater_closed(cmd):
     return cmd.command == 'C'
 def is_open_fan(cmd):
-    return cmd.command == 'F'
-def is_fan_opened(cmd):
     return cmd.command == 'O'
+def is_fan_opened(cmd):
+    return cmd.command == 'F'
 def is_fan_closed(cmd):
     return cmd.command == 'S'
 def is_not_supported(cmd):
     return cmd.command == 'N'
 def is_unknown(cmd):
-    return cmd.command not in ['P', 'Q', 'R', 'H', 'I', 'C', 'F', 'O', 'S', 'N']
+    return cmd.command not in ['P', 'Q', 'R', 'H', 'I', 'C', 'O', 'F', 'S', 'N']
         
 def parse(command, args):
     return Command(command, args)
@@ -71,10 +71,10 @@ def str(cmd):
         return "HeaterOpened"
     elif command == 'C':
         return "HeaterClosed"
-    elif command == 'F':
-        return "FanOpened"
     elif command == 'O':
         return "OpenFan"
+    elif command == 'F':
+        return "FanOpened"
     elif command == 'S':
         return "FanClosed"
     elif command == 'N':

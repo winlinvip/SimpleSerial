@@ -9,18 +9,19 @@ int pinDHT11 = 2;
 SimpleDHT11 dht11;
 
 // the flash LED.
-int pinLED = 13;
+int pinHeaterLED = 13; // HIGH to open, LOW to close.
+int pinFanLED = 12; // HIGH to open, LOW to close.
 bool ledEnabled = false;
 
 // the params for heater.
-int pinHeater = 3;
+int pinHeater = 3; // HIGH to open, LOW to close.
 bool heaterEnabled = false;
 unsigned long heaterExpire = 0;
 byte reqTargetTemperature = 0;
 byte reqHeaterCommandExpire = 0;
 
 // the params for fan.
-int pinFan = 4;
+int pinFan = 4; // HIGH to close, LOW to open.
 bool fanEnabled = false;
 unsigned long fanExpire = 0;
 byte reqTargetHumidity = 0;
@@ -33,10 +34,13 @@ void setup() {
   digitalWrite(pinHeater, LOW);
 
   pinMode(pinFan, OUTPUT);
-  digitalWrite(pinFan, LOW);
+  digitalWrite(pinFan, HIGH);
 
-  pinMode(pinLED, OUTPUT);
-  digitalWrite(pinLED, LOW);
+  pinMode(pinHeaterLED, OUTPUT);
+  digitalWrite(pinHeaterLED, LOW);
+
+  pinMode(pinFanLED, OUTPUT);
+  digitalWrite(pinFanLED, LOW);
 }
 
 void start_heater() {
@@ -62,7 +66,9 @@ void start_heater() {
 }
 
 void terminate_heater() {
-  digitalWrite(pinLED, LOW);
+  digitalWrite(pinHeaterLED, LOW);
+  digitalWrite(pinFanLED, LOW);
+  
   digitalWrite(pinHeater, LOW);
   heaterExpire = 0;
   heaterEnabled = false;
@@ -75,9 +81,9 @@ void execute_heater() {
 
   // flash the LED when heating.
   if (ledEnabled) {
-    digitalWrite(pinLED, LOW);
+    digitalWrite(pinHeaterLED, LOW);
   } else {
-    digitalWrite(pinLED, HIGH);
+    digitalWrite(pinHeaterLED, HIGH);
   }
   ledEnabled = !ledEnabled;
 
@@ -125,13 +131,15 @@ void start_fan() {
   
   // start fan.
   fanEnabled = true;
-  digitalWrite(pinFan, HIGH);
+  digitalWrite(pinFan, LOW);
   ss.write0(SSC_FAN_OPENED);
 }
 
 void terminate_fan() {
-  digitalWrite(pinLED, LOW);
-  digitalWrite(pinFan, LOW);
+  digitalWrite(pinHeaterLED, LOW);
+  digitalWrite(pinFanLED, LOW);
+  
+  digitalWrite(pinFan, HIGH);
   fanExpire = 0;
   fanEnabled = false;
 }
@@ -142,7 +150,12 @@ void execute_fan() {
   }
 
   // always light LED for fan.
-  digitalWrite(pinLED, HIGH);
+  if (ledEnabled) {
+    digitalWrite(pinFanLED, LOW);
+  } else {
+    digitalWrite(pinFanLED, HIGH);
+  }
+  ledEnabled = !ledEnabled;
 
   // detect the temperature and humidity.
   byte temperature = 0, humidity = 0;
@@ -166,7 +179,7 @@ void execute_fan() {
   }
 
   // keep fan.
-  digitalWrite(pinFan, HIGH);
+  digitalWrite(pinFan, LOW);
   return;
 }
 
