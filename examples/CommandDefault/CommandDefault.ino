@@ -5,7 +5,9 @@
 SimpleSerial ss;
 
 // the DHT11 temperatue and humidity sensor.
-int pinDHT11 = 2;
+int pinThGreenhouse = 2;
+// the DHT11 to detect out of greenhouse.
+int pinThSpace = 5;
 SimpleDHT11 dht11;
 
 // the flash LED.
@@ -46,7 +48,7 @@ void setup() {
 void start_heater() {
   // check whether need to start heater.
   byte temperature = 0, humidity = 0;
-  if (dht11.read(pinDHT11, &temperature, &humidity, NULL)) {
+  if (dht11.read(pinThGreenhouse, &temperature, &humidity, NULL)) {
     return;
   }
   delay(200);
@@ -89,7 +91,7 @@ void execute_heater() {
 
   // detect the temperature and humidity.
   byte temperature = 0, humidity = 0;
-  if (dht11.read(pinDHT11, &temperature, &humidity, NULL)) {
+  if (dht11.read(pinThGreenhouse, &temperature, &humidity, NULL)) {
     return;
   }
   delay(200);
@@ -116,7 +118,7 @@ void execute_heater() {
 void start_fan() {
   // check whether need to start fan.
   byte temperature = 0, humidity = 0;
-  if (dht11.read(pinDHT11, &temperature, &humidity, NULL)) {
+  if (dht11.read(pinThGreenhouse, &temperature, &humidity, NULL)) {
     return;
   }
   delay(200);
@@ -159,7 +161,7 @@ void execute_fan() {
 
   // detect the temperature and humidity.
   byte temperature = 0, humidity = 0;
-  if (dht11.read(pinDHT11, &temperature, &humidity, NULL)) {
+  if (dht11.read(pinThGreenhouse, &temperature, &humidity, NULL)) {
     return;
   }
   delay(200);
@@ -183,6 +185,20 @@ void execute_fan() {
   return;
 }
 
+void detect_space() {
+  if (heaterEnabled || fanEnabled) {
+    return;
+  }
+  
+  byte temperature = 0, humidity = 0;
+  if (dht11.read(pinThSpace, &temperature, &humidity, NULL)) {
+    return;
+  }
+  delay(3000);
+  
+  ss.write2(SSC_RESP_THS, temperature, humidity);
+}
+
 void loop() {
   // execute previous tasks.
   execute_heater();
@@ -190,6 +206,7 @@ void loop() {
   
   // got new command.
   if (ss.read()) {
+    detect_space();
     delay(300);
     return;
   }
@@ -203,7 +220,7 @@ void loop() {
   // response the DHT11 temperature and humidity.
   if (ss.command() == SSC_QUERY_TH) {
     byte temperature = 0, humidity = 0;
-    if (dht11.read(pinDHT11, &temperature, &humidity, NULL)) {
+    if (dht11.read(pinThGreenhouse, &temperature, &humidity, NULL)) {
       return;
     }
     delay(200);

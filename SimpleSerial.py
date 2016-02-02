@@ -30,6 +30,8 @@ def fanClosed(ht, he, h, e):
     return Command('S').set_arg3(ht, he, h, e)
 def notSupported(c):
     return Command('N').set_arg0(c)
+def respTH2(t, h):
+    return Command('T').set_arg1(t, h)
             
 def is_ping(cmd):
     return cmd.command == 'P'
@@ -51,8 +53,10 @@ def is_fan_closed(cmd):
     return cmd.command == 'S'
 def is_not_supported(cmd):
     return cmd.command == 'N'
+def is_resp_th2(cmd):
+    return cmd.command == 'T'
 def is_unknown(cmd):
-    return cmd.command not in ['P', 'Q', 'R', 'H', 'I', 'C', 'O', 'F', 'S', 'N']
+    return cmd.command not in ['P', 'Q', 'R', 'H', 'I', 'C', 'O', 'F', 'S', 'N', 'T']
         
 def parse(command, args):
     return Command(command, args)
@@ -65,6 +69,8 @@ def str(cmd):
         return 'QueryTH'
     elif command == 'R':
         return "ResponseTH"
+    elif command == 'T':
+        return "ResponseTH2"
     elif command == 'H':
         return "OpenHeater"
     elif command == 'I':

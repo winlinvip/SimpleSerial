@@ -83,6 +83,8 @@ enum SimpleSerialCommands {
     // GQ01234567890123
     SSC_QUERY_TH = 'Q',
     SSC_RESP_TH = 'R',
+    // the temperature and humidity for outer space.
+    SSC_RESP_THS = 'T',
     // not support command, arg0 is the command.
     // GNA0123456789012
     SSC_NOT_SUPPORT = 'N',
